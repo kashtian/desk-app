@@ -17,7 +17,9 @@ let plugins = [
 
 module.exports = {
     target: 'electron-main',
-    entry: './src/main.js',
+    entry: {
+        main: ['./src/main/index.js']
+    },
     output: {
         path: path.join(process.cwd(), 'dist'),
         filename: 'main.js',

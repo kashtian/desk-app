@@ -35,6 +35,7 @@ function startRenderer() {
 
 function startMain() {
     return new Promise((resolve, reject) => {
+        mainConfig.entry.main.unshift('./src/main/index.dev.js')
         const mainCompiler = webpack(mainConfig);
 
         mainCompiler.watch({}, (err, stats) => {
