@@ -9,6 +9,8 @@ const rendererConfig = require('./webpack.renderer.config');
 
 const app = express();
 
+let electronProcess, manualRestart;
+
 function startRenderer() {
     return new Promise((resolve, reject) => {
         const rendererCompiler = webpack(rendererConfig);
@@ -50,13 +52,25 @@ function startMain() {
                 chunks: false,
                 chunkModules: false
             }))
+
+            if (electronProcess && electronProcess.kill) {
+                manualRestart = true;
+                process.kill(electronProcess.pid);
+                electronProcess = null;
+                startElectron();
+
+                setTimeout(() => {
+                    manualRestart = false;
+                }, 5000)
+            }
+
             resolve();
         })
     })
 }
 
 function startElectron() {
-    let electronProcess = spawn(electron, ['--inspect=5859', path.join(__dirname, '../dist/main.js')])
+    electronProcess = spawn(electron, ['--inspect=5859', path.join(__dirname, '../dist/main.js')])
 
     electronProcess.stdout.on('data', data => {
         console.log(`electron process stdout data========>${data}`.blue);
@@ -67,8 +81,10 @@ function startElectron() {
     })
 
     electronProcess.on('close', () => {
-        console.log('electron process close')
-        process.exit();
+        if (!manualRestart) {
+            console.log('electron process close')
+            process.exit();
+        }        
     })
 }
 
