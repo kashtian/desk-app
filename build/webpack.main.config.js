@@ -28,8 +28,8 @@ module.exports = {
         main: ['./src/main/index.js']
     },
     node: {
-        __dirname: false,  // no mock
-        __filename: false   // no mock
+        __dirname: process.argv.includes('--development'),  // 生产环境禁止mock
+        __filename: process.argv.includes('--development')  
     },
     output: {
         path: path.join(__dirname, '../dist'),
