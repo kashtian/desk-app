@@ -2,12 +2,13 @@
   "name": "desk-app",
   "version": "1.0.0",
   "description": "electron app test",
-  "main": "./dist/main.js",
+  "main": "./main.js",
   "scripts": {
     "dev": "node ./build/dev-runner.js --development",
-    "build": "rimraf dist && npm run build:renderer && npm run build:main",
-    "build:renderer": "webpack --config ./build/webpack.renderer.config.js",
-    "build:main": "webpack --config ./build/webpack.main.config.js",
+    "build": "rimraf exe && electron-packager ./dist --platform=darwin --out=exe",
+    "pack": "rimraf dist && npm run pack:renderer && npm run pack:main",
+    "pack:renderer": "webpack --config ./build/webpack.renderer.config.js",
+    "pack:main": "webpack --config ./build/webpack.main.config.js",
     "start": "electron ./dist/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -29,8 +30,10 @@
     "copy-webpack-plugin": "^4.3.0",
     "css-loader": "^0.28.7",
     "devtron": "^1.4.0",
+    "electron": "^1.7.9",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.3",
+    "electron-packager": "^10.1.0",
     "express": "^4.16.2",
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^1.1.6",
@@ -47,7 +50,6 @@
     "webpack-hot-middleware": "^2.18.0"
   },
   "dependencies": {
-    "electron": "^1.7.9",
     "vue": "^2.3.3",
     "vue-router": "^2.5.3",
     "vuex": "^2.3.1",

@@ -2,7 +2,6 @@ const path = require('path');
 const webpack = require('webpack');
 const HTMLPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const vueConfig = require('./vue-loader.config');
 
 
@@ -103,13 +102,7 @@ const prodConfig = {
         new HTMLPlugin({
             template: 'src/index.html'
         }),
-        new ExtractTextPlugin('[name].[contenthash:7].css'),
-        new CopyWebpackPlugin([
-            {
-                from: path.join(__dirname, '../static'),
-                to: path.join(__dirname, '../dist/static')
-            }
-        ])
+        new ExtractTextPlugin('[name].[contenthash:7].css')
     ]
 }
 

@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { dependencies } = require('../package.json');
 
 let plugins = [
@@ -12,7 +13,13 @@ let plugins = [
             warnings: false
         },
         comments: false
-    })
+    }),
+    new CopyWebpackPlugin([
+        {
+            from: path.join(__dirname, '../package.json'),
+            to: path.join(__dirname, '../dist')
+        }
+    ])
 ]
 
 module.exports = {
@@ -20,8 +27,12 @@ module.exports = {
     entry: {
         main: ['./src/main/index.js']
     },
+    node: {
+        __dirname: process.argv.includes('--development'),
+        __filename: process.argv.includes('--development')
+    },
     output: {
-        path: path.join(process.cwd(), 'dist'),
+        path: path.join(__dirname, '../dist'),
         filename: 'main.js',
         libraryTarget: 'commonjs2'
     },
