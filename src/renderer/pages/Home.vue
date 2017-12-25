@@ -10,7 +10,8 @@
 </template>
 
 <script>
-import { remote, ipcRenderer } from 'electron';
+import { remote } from 'electron';
+import { compressImg } from '../utils/compress-img'
 
 export default {
     name: 'home',
@@ -63,9 +64,12 @@ export default {
                 remote.dialog.showErrorBox('警告', '目标目录不能为空')
                 return;
             }
-            ipcRenderer.send('compress-img', {
-                src: this.src,
-                target: this.dest
+            compressImg(this.src, this.dest).then(() => {
+                remote.dialog.showMessageBox({
+                    message: '图片处理完成'
+                })
+            }).catch(err => {
+                remote.dialog.showErrorBox('图片处理失败', err);
             })
         }
     }

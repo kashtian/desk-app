@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node ./build/dev-runner.js --development",
     "build": "rimraf exe && electron-packager ./dist --platform=darwin --out=exe",
+    "build:win32": "rimraf exe && electron-packager ./dist --platform=win32 electronVersion=1.7.9 --out=exe",
     "pack": "rimraf dist && npm run pack:renderer && npm run pack:main",
     "pack:renderer": "webpack --config ./build/webpack.renderer.config.js",
     "pack:main": "webpack --config ./build/webpack.main.config.js",
