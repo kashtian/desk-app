@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const HTMLPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const vueConfig = require('./vue-loader.config');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 
 const baseConfig = {
@@ -87,14 +88,10 @@ const prodConfig = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production')
         }),
+        new webpack.IgnorePlugin(/vertx/),
         //根据模块调用次数，给模块分配ids，常被调用的ids分配更短的id，使得ids可预测，降低文件大小
         new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            },
-            comments: false
-        }),
+        new UglifyJsPlugin(),
         // extract vendor chunks for better caching
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor'

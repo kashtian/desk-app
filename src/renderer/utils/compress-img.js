@@ -1,10 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import gm from 'gm';
-import imagemin from 'imagemin';
-import imageminPng from 'imagemin-pngquant';
+import PngQuant from 'pngquant';
+import Jimp from 'jimp';
 
-let options = {
+export let options = {
     quality: 88
 }
 
@@ -61,18 +60,26 @@ function compressJpg(files, target) {
         }
         let errors = [];
         for (let i = 0, len = files.length; i < len; i++) {
-            gm(files[i])
-            .quality(options.quality_jpg || options.quality)
-            .write(`${target}/${path.posix.basename(files[i])}`, function(err) {
+            Jimp.read(files[i], (err, image) => {
                 if (err) {
                     errors.push(`compress ${files[i]} error: ${err}`)
-                }
-                if (i == len - 1) {
-                    if (errors.length) {
+                    if (i == len - 1) {
                         reject(JSON.stringify(errors))
-                    } else {
-                        resolve();
                     }
+                } else {
+                    image.quality(options.quality_jpg || options.quality)
+                    .write(`${target}/${getFileName(files[i])}`, err => {
+                        if (err) {
+                            errors.push(`compress ${files[i]} error: ${err}`)
+                        }
+                        if (i == len - 1) {
+                            if (errors.length) {
+                                reject(JSON.stringify(errors))
+                            } else {
+                                resolve();
+                            }
+                        }
+                    })
                 }
             })
         }        
@@ -81,13 +88,38 @@ function compressJpg(files, target) {
 
 // 压缩png图片
 function compressPng(files, target) {
-    return imagemin(files, target, {
-        plugins: [
-            imageminPng({
-                quality: options.quality_png || options.quality
+    return new Promise((resolve, reject) => {
+        if (!files.length) {
+            resolve();
+        }
+        let errors = [], srcStream, destStream, myPngQuant;
+        for (let i = 0, len = files.length; i < len; i++) {
+            srcStream = fs.createReadStream(files[i]);
+            destStream = fs.createWriteStream(`${target}/${getFileName(files[i])}`)
+            myPngQuant = new PngQuant([100, '-f', '--quality', getPngQualityRange()])
+            myPngQuant.on('error', err => {
+                errors.push(`compress ${getFileName(files[i])} error: ${err}`)                
+            }).on('data', () => {
+                console.log('png data')
+            }).on('end', () => {
+                if (errors.length) {
+                    reject(JSON.stringify(errors))
+                } else {
+                    resolve();
+                }                
             })
-        ]
+            srcStream.pipe(myPngQuant).pipe(destStream);                      
+        }        
     })
+}
+
+function getPngQualityRange() {
+    let quality = options.quality_png || options.quality;
+    return `${quality-10 < 0 ? 0 : (quality-10)}-${quality+10 > 100 ? 100 : (quality+10)}`
+}
+
+function getFileName(filePath) {
+    return path.posix.basename(filePath);
 }
 
 function isDir(src) {
