@@ -14,12 +14,7 @@ let plugins = [
         },
         comments: false
     }),
-    new CopyWebpackPlugin([
-        {
-            from: path.join(__dirname, '../package.json'),
-            to: path.join(__dirname, '../dist')
-        }
-    ])
+    new CopyWebpackPlugin(getCopyList())
 ]
 
 module.exports = {
@@ -52,4 +47,41 @@ module.exports = {
         ]
     },
     plugins: process.argv.includes('--development') ? [] : plugins
+}
+
+function getDependencies(arr) {
+    let keys = [];
+    if (!arr.length) {
+        return keys;
+    }
+    arr.forEach(item => {
+        let { dependencies } = require(`${item}/package.json`);
+        removeRepeat(keys, Object.keys(dependencies || {}));
+    })
+    return removeRepeat(getDependencies(keys), arr);
+}
+
+function removeRepeat(src, target) {
+    target.forEach(item =>{
+        if (!src.includes(item)) {
+            src.push(item)
+        }
+    })   
+    return src; 
+}
+
+function getCopyList() {
+    let dependencies = getDependencies(['jimp', 'pngquant']);
+    let list = [];
+    dependencies.forEach(item =>{
+        list.push({
+            from: path.join(__dirname, `../node_modules/${item}/**/*`),
+            to: path.join(__dirname, `../dist/`)
+        })
+    })
+    list.push({
+        from: path.join(__dirname, '../package.json'),
+        to: path.join(__dirname, '../dist')
+    })
+    return list;
 }

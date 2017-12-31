@@ -20,8 +20,7 @@
 </template>
 
 <script>
-import { remote } from 'electron';
-import { compressImg, options as cOpts } from '../utils/compress-img'
+import { remote, ipcRenderer } from 'electron';
 
 export default {
     name: 'home',
@@ -35,8 +34,8 @@ export default {
         return {
             src: '',
             dest: '',
-            quality_jpg: cOpts.quality,
-            quality_png: cOpts.quality
+            quality_jpg: null,
+            quality_png: null
         }
     },
 
@@ -79,13 +78,10 @@ export default {
             let params = {};
             this.quality_jpg && (params.quality_jpg = parseInt(this.quality_jpg));
             this.quality_png && (params.quality_png = parseInt(this.quality_png));
-            compressImg(this.src, this.dest, params).then(() => {
-                remote.dialog.showMessageBox({
-                    message: '图片处理完成'
-                })
-            }).catch(err => {
-                console.log(err)
-                remote.dialog.showErrorBox('图片处理失败', err || '出错了');
+            ipcRenderer.send('test', {
+                src: this.src,
+                dest: this.dest,
+                opts: params
             })
         }
     }

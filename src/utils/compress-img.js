@@ -4,7 +4,7 @@ import PngQuant from 'pngquant';
 import Jimp from 'jimp';
 
 export let options = {
-    quality: 88
+    quality: 68
 }
 
 export function compressImg(src, target, opts) {
